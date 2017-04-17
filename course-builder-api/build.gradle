@@ -1,0 +1,52 @@
+plugins { id 'org.hidetake.swagger.generator' version '2.4.2' }
+
+ext {
+
+	orikaVersion = "1.5.1"
+
+	springFoxArtifacts = [
+		"springfox-swagger2",
+		"springfox-swagger-ui"
+	]
+	springFoxVersion = "2.6.1"
+
+	swaggerCodeGenVersion = "2.2.1"
+}
+
+sourceSets {
+	main {
+		groovy { srcDir "src/main/groovy" }
+		java { 
+			srcDir file("${buildDir}/swagger-code/src/main/java")
+			exclude "br/com/presstartup/coursebuilder/swagger/api/*ApiController.java"
+		}
+		resources { srcDir "src/main/resources" }
+	}
+	test {
+		groovy { srcDir "src/test/groovy" }
+		resources { srcDir "src/test/resources" }
+	}
+}
+
+dependencies {
+
+	compile "ma.glasnost.orika:orika-core:${orikaVersion}"
+	compile "org.springframework.boot:spring-boot-starter-jersey"
+	compile "org.springframework.boot:spring-boot-starter-web"
+
+	compile project(':course-builder-model')
+
+	testCompile "org.springframework.boot:spring-boot-starter-test"
+
+	springFoxArtifacts.each { artifact -> compile "io.springfox:$artifact:${springFoxVersion}" }
+
+	swaggerCodegen "io.swagger:swagger-codegen-cli:${swaggerCodeGenVersion}"
+}
+
+generateSwaggerCode {
+
+	configFile = file('src/main/resources/swagger/config.json')
+	components = ['models', 'apis']
+	inputFile = file('src/main/resources/swagger/coursebuilder-API-1.2.0.yaml')
+	language = 'spring'
+}

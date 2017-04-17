@@ -1,0 +1,2 @@
+include ':course-builder-model'
+project(':course-builder-model').projectDir = new File(settingsDir, '../course-builder-model')

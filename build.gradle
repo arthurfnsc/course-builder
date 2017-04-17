@@ -1,0 +1,48 @@
+buildscript {
+	
+	ext { springBootVersion = "1.5.2.RELEASE" }
+
+	repositories {
+
+		jcenter()
+		mavenCentral()
+		mavenLocal()
+	}
+
+	dependencies { classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}" }
+}
+
+allprojects {
+	group "br.com.presstartup"
+	version "1.0.0"
+}
+
+subprojects {
+
+	apply plugin: "eclipse"
+	apply plugin: "groovy"
+	apply plugin: "idea"
+	apply plugin: "java"
+	apply plugin: "org.springframework.boot"
+
+	ext { spockVersion = "1.0-groovy-2.4" }
+
+	sourceCompatibility = 1.8
+	targetCompatibility = 1.8
+
+	repositories {
+		
+		jcenter()
+		mavenCentral()
+		mavenLocal()
+	}
+
+	dependencies {
+
+		compile "org.codehaus.groovy:groovy"
+		compile "org.springframework.boot:spring-boot-starter"
+
+		testCompile "org.spockframework:spock-core:${spockVersion}"
+		testCompile "org.springframework.boot:spring-boot-starter-test"		
+	}
+}

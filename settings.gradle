@@ -1,0 +1,3 @@
+rootProject.name = "course-builder"
+
+include "course-builder-api", "course-builder-model"

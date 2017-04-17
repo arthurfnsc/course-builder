@@ -1,0 +1,7 @@
+{
+	"dateLibrary": "java8",
+	"hideGenerationTimestamp": true,
+	"modelPackage": "br.com.presstartup.coursebuilder.swagger.model",
+	"apiPackage": "br.com.presstartup.coursebuilder.swagger.api",
+	"invokerPackage": "br.com.presstartup.coursebuilder.swagger"
+}

@@ -1,0 +1,483 @@
+swagger: '2.0'
+
+info:
+  version: "1.2.0"
+  title: CourseBuilder-API
+  description: Online course creators are always looking for the "best" tool to build their courses, something that is extremely powerful, content-rich, customizable and yet very simple to use. We at Thinkific
+    - are very proud of the solution that we've built, but we are very curious about others’ take on this
+    - challenge so we want to see what they would visualize.
+
+schemes:
+  - https
+
+basePath: /v1.2
+
+paths:
+  /chapters/{identifier}:
+    get:
+      description: |
+        Retrieve chapter
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Chapter identifier
+          required: true
+          type: string
+      responses:
+        200:
+          description: Chapter
+          schema:
+            $ref: "#/definitions/CompleteChapter"
+        404:
+          description: Not found chapter
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      description: |
+        5 - Should allow users to edit chapter
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Chapter identifier
+          required: true
+          type: string
+        - in: body
+          name: chapter
+          description: Course chapter
+          required: true
+          schema:
+            $ref: "#/definitions/Chapter"
+      responses:
+        200:
+          description: Successful updated chapters
+          schema:
+            $ref: "#/definitions/CompleteChapter"
+        400:
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: Not found chapter
+          schema:
+            $ref: "#/definitions/Error"
+        409:
+          description: Duplicated chapter
+          schema:
+            $ref: "#/definitions/Error"
+  /chapters/{identifier}/contents:
+    post:
+      description: |
+        4 - Should allow users to add content with a title (not to exceed 255 characters)
+        a. Should allow users to upload files
+        b. Should allow users to create contents based on HTML text, audio, video, pdf and download
+        c. For contents that input comes from uploaded files, each content should restrict its file type
+      consumes:
+        - multipart/form-data
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Chapter identifier
+          required: true
+          type: string
+        - in: formData
+          name: content
+          description: Course content
+          required: true
+          type: file
+      responses:
+        201:
+          description: Successful created contents
+          schema:
+            $ref: "#/definitions/CompleteContent"
+        400:
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: Not found chapter
+          schema:
+            $ref: "#/definitions/Error"
+  /chapters/{identifier}/contents/items:
+    put:
+      description: |
+        8 - Should allow users to change the order of the contents
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Chapter identifier
+          required: true
+          type: string
+        - in: body
+          name: contents
+          description: Chapter contents
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CompleteContent"
+      responses:
+        200:
+          description: Successful updated contents
+          schema:
+            $ref: "#/definitions/CompleteChapter"
+        400:
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: Not found chapter
+          schema:
+            $ref: "#/definitions/Error"
+  /contents/{identifier}:
+    put:
+      description: |
+        6 - Should allow users to edit content
+      consumes:
+        - multipart/form-data
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Content identifier
+          required: true
+          type: string
+        - in: formData
+          name: content
+          description: Chapter content
+          required: true
+          type: file
+      responses:
+        200:
+          description: Successful updated content
+          schema:
+            $ref: "#/definitions/CompleteContent"
+        400:
+          description: Invalid parameters request
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: Not found content
+          schema:
+            $ref: "#/definitions/Error"
+  /contents/{identifier}/item:
+    put:
+      description: |
+        9 - Should allow users to move content from one chapter to another
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Content identifier
+          required: true
+          type: string
+        - in: query
+          name: chapter_origin
+          description: Chapter origin identifier
+          required: true
+          type: string
+        - in: query
+          name: chapter_target
+          description: Chapter target identifier
+          required: true
+          type: string
+      responses:
+        200:
+          description: Successful updated content
+          schema:
+            description: validation
+            type: boolean
+        400:
+          description: Invalid parameters request
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: Not found
+          schema:
+            $ref: "#/definitions/Error"
+  /courses:
+    get:
+      description: |
+        Retrieve courses
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: order_by
+          description: Order used to retrieve elements
+          items:
+            enum: ["date_asc", "date_desc", "description_asc", "description_desc", "duration_asc", "duration_desc", "name_asc", "name_desc", "price_asc", "price_desc", "subtitle_asc", "subtitle_desc"]
+            type: string
+        - in: query
+          name: limit
+          description: Limit elements response
+          type: number
+      responses:
+        200:
+          description: Successful retrieved course
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/CompleteCourse"
+          headers:
+            total-elements:
+              description: Total elements
+              type: number
+        404:
+          description: Not found course
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      description: |
+        1 - Should allow users to create courses with the following fields
+        a. name (not to exceed 255 characters)
+        b. subtitle (not to exceed 255 characters)
+        c. description (unlimited size and must allow HTML)
+        d. price (precision of 8 digits and scale of 2)
+        e. duration - decimal (precision of 5 digits and scale of 1)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: course
+          description: User course
+          required: true
+          schema:
+            $ref: "#/definitions/Course"
+      responses:
+        201:
+          description: Successful created course
+          schema:
+            $ref: "#/definitions/CompleteCourse"
+        400:
+          description: Invalid parameters request
+          schema:
+            $ref: "#/definitions/Error"
+  /courses/{identifier}:
+    get:
+      description: |
+        Retrieve course
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Course identifier
+          required: true
+          type: string
+      responses:
+        200:
+          description: Course
+          schema:
+            $ref: "#/definitions/CompleteCourse"
+        404:
+          description: Not found course
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      description: |
+        2 - Should allow users to edit any of its fields
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Course identifier
+          required: true
+          type: string
+        - in: body
+          name: course
+          description: Course
+          required: true
+          schema:
+            $ref: "#/definitions/Course"
+      responses:
+        200:
+          description: Successful updated course
+          schema:
+            $ref: "#/definitions/CompleteCourse"
+        400:
+          description: Invalid parameters request
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: Not found course
+          schema:
+            $ref: "#/definitions/Error"
+  /courses/{identifier}/chapters:
+    post:
+      description: |
+        3 - Should allow users to add chapter with a title (not to exceed 255 characters)
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Course identifier
+          required: true
+          type: string
+        - in: body
+          name: chapter
+          description: Course chapter
+          required: true
+          schema:
+            $ref: "#/definitions/Chapter"
+      responses:
+        201:
+          description: Successful updated chapters
+          schema:
+            $ref: "#/definitions/CompleteChapter"
+        400:
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: Not found course
+          schema:
+            $ref: "#/definitions/Error"
+        409:
+          description: Duplicated chapter
+          schema:
+            $ref: "#/definitions/Error"
+  /courses/{identifier}/chapters/items:
+    put:
+      description: |
+        7 - Should allow users to change the order of the chapters
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: identifier
+          description: Course identifier
+          required: true
+          type: string
+        - in: body
+          name: chapters
+          description: Course chapters
+          required: true
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Chapter"
+      responses:
+        200:
+          description: Successful updated chapters
+          schema:
+            $ref: "#/definitions/CompleteCourse"
+        400:
+          description: Invalid request
+          schema:
+            $ref: "#/definitions/Error"
+        404:
+          description: Not found chapter
+          schema:
+            $ref: "#/definitions/Error"
+
+definitions:
+  Chapter:
+    type: object
+    properties:
+      title:
+        type: string
+        maxLength: 255
+  CompleteChapter:
+    type: object
+    properties:
+      identifier:
+        type: string
+      title:
+        type: string
+        maxLength: 255
+      contents:
+        type: array
+        items:
+          $ref: "#/definitions/CompleteContent"
+  CompleteContent:
+    type: object
+    properties:
+      identifier:
+        type: string
+      name:
+        type: string
+      media:
+        type: string
+  CompleteCourse:
+    type: object
+    properties:
+      identifier:
+        type: string
+      name:
+        type: string
+        maxLength: 255
+      subtitle:
+        type: string
+        maxLength: 255
+      description:
+        type: string
+      price:
+        type: number
+        format: decimal
+      duration:
+        type: number
+        format: decimal
+        created_at:
+          type: string
+          format: date
+      chapters:
+        type: array
+        items:
+          $ref: "#/definitions/CompleteChapter"
+  Course:
+    type: object
+    properties:
+      name:
+        type: string
+        maxLength: 255
+      subtitle:
+        type: string
+        maxLength: 255
+      description:
+        type: string
+      price:
+        type: number
+        format: decimal
+      duration:
+        type: number
+        format: decimal
+  Error:
+    type: object
+    properties:
+      http_code:
+        type: number
+        format: int
+      message:
+        type: string
+      details:
+        type: string
