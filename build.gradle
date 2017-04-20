@@ -1,6 +1,10 @@
 buildscript {
-	
-	ext { springBootVersion = "1.5.2.RELEASE" }
+
+	ext {
+
+		beanManesVersion = "0.14.0"
+		springBootVersion = "1.5.2.RELEASE"
+	}
 
 	repositories {
 
@@ -9,7 +13,11 @@ buildscript {
 		mavenLocal()
 	}
 
-	dependencies { classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}" }
+	dependencies {
+
+		classpath "com.github.ben-manes:gradle-versions-plugin:${beanManesVersion}"
+		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+	}
 }
 
 apply plugin: "project-report"
@@ -23,6 +31,7 @@ allprojects {
 
 subprojects {
 
+	apply plugin: "com.github.ben-manes.versions"
 	apply plugin: "eclipse"
 	apply plugin: "groovy"
 	apply plugin: "idea"
@@ -35,10 +44,15 @@ subprojects {
 	targetCompatibility = 1.8
 
 	def defaultEncoding = "UTF-8"
-	[compileGroovy, compileJava, compileTestGroovy, compileTestJava]*.options*.encoding = defaultEncoding
+	[
+		compileGroovy,
+		compileJava,
+		compileTestGroovy,
+		compileTestJava
+	]*.options*.encoding = defaultEncoding
 
 	repositories {
-		
+
 		jcenter()
 		mavenCentral()
 		mavenLocal()
@@ -50,6 +64,25 @@ subprojects {
 		compile "org.springframework.boot:spring-boot-starter"
 
 		testCompile "org.spockframework:spock-core:${spockVersion}"
-		testCompile "org.springframework.boot:spring-boot-starter-test"		
+		testCompile "org.springframework.boot:spring-boot-starter-test"
+	}
+
+	dependencyUpdates.resolutionStrategy = {
+		componentSelection { rules ->
+			rules.all { ComponentSelection selection ->
+				boolean rejected = [
+					'alpha',
+					'beta',
+					'rc',
+					'cr',
+					'm'
+				].any { qualifier ->
+					selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+				}
+				if (rejected) {
+					selection.reject('Release candidate')
+				}
+			}
+		}
 	}
 }

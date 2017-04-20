@@ -10,7 +10,7 @@ ext {
 	]
 	springFoxVersion = "2.6.1"
 
-	swaggerCodeGenVersion = "2.2.1"
+	swaggerCodeGenVersion = "2.2.2"
 }
 
 sourceSets {
