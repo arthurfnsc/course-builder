@@ -12,6 +12,10 @@ buildscript {
 	dependencies { classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}" }
 }
 
+apply plugin: "project-report"
+
+htmlDependencyReport { projects = project.allprojects }
+
 allprojects {
 	group "br.com.presstartup"
 	version "1.0.0"
@@ -30,7 +34,7 @@ subprojects {
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
 
-	def defaultEncoding = 'UTF-8'
+	def defaultEncoding = "UTF-8"
 	[compileGroovy, compileJava, compileTestGroovy, compileTestJava]*.options*.encoding = defaultEncoding
 
 	repositories {
