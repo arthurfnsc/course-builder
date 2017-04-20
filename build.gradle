@@ -30,6 +30,9 @@ subprojects {
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
 
+	def defaultEncoding = 'UTF-8'
+	[compileGroovy, compileJava, compileTestGroovy, compileTestJava]*.options*.encoding = defaultEncoding
+
 	repositories {
 		
 		jcenter()
