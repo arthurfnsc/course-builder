@@ -3,11 +3,18 @@ package br.com.presstartup.coursebuilder.apis
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 
+/**
+ * @author arthurfnsc
+ *
+ */
 @Controller
 class HomeAPI {
 
-	@RequestMapping(value = "/")
-	String index() {
-		return "redirect:swagger-ui.html";
-	}
+    /**
+     * @return
+     */
+    @RequestMapping(value = '/')
+    String index() {
+        'redirect:swagger-ui.html'
+    }
 }

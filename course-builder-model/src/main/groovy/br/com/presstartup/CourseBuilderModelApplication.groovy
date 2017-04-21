@@ -6,27 +6,39 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.context.annotation.ComponentScan
 
-@ComponentScan("br.com.presstartup")
+/**
+ * @author arthurfnsc
+ *
+ */
+@ComponentScan('br.com.presstartup')
 @SpringBootApplication
 class CourseBuilderModelApplication implements CommandLineRunner {
 
-	class ExitException extends RuntimeException implements ExitCodeGenerator {
-		private static final long serialVersionUID = 1L;
+    /**
+     * @author arthurfnsc
+     *
+     */
+    class ExitException extends RuntimeException implements ExitCodeGenerator {
 
-		@Override
-		public int getExitCode() {
-			return 10;
-		}
-	}
+        private static final long serialVersionUID = 1L
 
-	static void main(String[] args) {
-		SpringApplication.run CourseBuilderModelApplication, args
-	}
+        final int exitCode = 10
+    }
 
-	@Override
-	public void run(String... args) throws Exception {
-		if ((args.length > 0) && args[0].equals("exitcode")) {
-            throw new ExitException();
-		}
-	}
+    /**
+     * @param args
+     */
+    static void main(String[] args) {
+        SpringApplication.run CourseBuilderModelApplication, args
+    }
+
+    /* (non-Javadoc)
+     * @see org.springframework.boot.CommandLineRunner#run(java.lang.String[])
+     */
+    @Override
+    void run(String... args) throws Exception {
+        if ((args.length > 0) && args[0] == ('exitcode')) {
+            throw new ExitException()
+        }
+    }
 }

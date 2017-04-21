@@ -8,28 +8,39 @@ import org.springframework.context.annotation.ComponentScan
 
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 
-@ComponentScan("br.com.presstartup")
+/**
+ * @author arthurfnsc
+ *
+ */
+@ComponentScan('br.com.presstartup')
 @EnableSwagger2
 @SpringBootApplication
 class CourseBuilderApiApplication implements CommandLineRunner {
 
-	class ExitException extends RuntimeException implements ExitCodeGenerator {
-		private static final long serialVersionUID = 1L;
+    /**
+     * @author arthurfnsc
+     *
+     */
+    class ExitException extends RuntimeException implements ExitCodeGenerator {
+        private static final long serialVersionUID = 1L
 
-		@Override
-		public int getExitCode() {
-			return 10;
-		}
-	}
+        final int exitCode = 10
+    }
 
-	static void main(String[] args) {
-		SpringApplication.run CourseBuilderApiApplication, args
-	}
+    /**
+     * @param args
+     */
+    static void main(String[] args) {
+        SpringApplication.run CourseBuilderApiApplication, args
+    }
 
-	@Override
-	public void run(String... args) throws Exception {
-		if ((args.length > 0) && args[0].equals("exitcode")) {
-            throw new ExitException();
-		}
-	}
+    /* (non-Javadoc)
+     * @see org.springframework.boot.CommandLineRunner#run(java.lang.String[])
+     */
+    @Override
+    void run(String... args) throws Exception {
+        if ((args.length > 0) && args[0] == ("exitcode")) {
+            throw new ExitException()
+        }
+    }
 }

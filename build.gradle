@@ -31,6 +31,7 @@ allprojects {
 
 subprojects {
 
+	apply plugin: "codenarc"
 	apply plugin: "com.github.ben-manes.versions"
 	apply plugin: "eclipse"
 	apply plugin: "groovy"
@@ -38,7 +39,11 @@ subprojects {
 	apply plugin: "java"
 	apply plugin: "org.springframework.boot"
 
-	ext { spockVersion = "1.0-groovy-2.4" }
+	ext {
+
+		gmetricsVersion = "0.7"
+		spockVersion = "1.0-groovy-2.4"
+	}
 
 	sourceCompatibility = 1.8
 	targetCompatibility = 1.8
@@ -60,11 +65,22 @@ subprojects {
 
 	dependencies {
 
+		compile "org.gmetrics:GMetrics:${gmetricsVersion}"
 		compile "org.codehaus.groovy:groovy"
 		compile "org.springframework.boot:spring-boot-starter"
 
 		testCompile "org.spockframework:spock-core:${spockVersion}"
 		testCompile "org.springframework.boot:spring-boot-starter-test"
+	}
+
+	codenarc {
+
+		configFile project(':').file('config/codenarc/rules.groovy')
+		ignoreFailures false
+		maxPriority1Violations 0
+		maxPriority2Violations 0
+		maxPriority3Violations 0
+		toolVersion = "0.27.0"
 	}
 
 	dependencyUpdates.resolutionStrategy = {

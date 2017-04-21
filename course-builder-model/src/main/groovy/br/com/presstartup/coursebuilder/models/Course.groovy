@@ -6,41 +6,45 @@ import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 
+/**
+ * @author arthurfnsc
+ *
+ */
 class Course {
 
-	@Id
-	private String id
+    @Id
+    private String id
 
-	@CreatedDate
-	private LocalDate createdDate;
+    @CreatedDate
+    private final LocalDate createdDate
 
-	BigDecimal duration
-	BigDecimal price
+    BigDecimal duration
+    BigDecimal price
 
-	String description
-	String name
-	String subtitle
+    String description
+    String name
+    String subtitle
 
-	@DBRef
-	private List<Chapter> chapters = new ArrayList<>()
+    @DBRef
+    private final List<Chapter> chapters = []
 
-	Course() {
-		this.createdDate = LocalDate.now()
-	}
+    Course() {
+        this.createdDate = LocalDate.now()
+    }
 
-	boolean addChapter(final Chapter chapter) {
-		this.chapters.add(chapter)
-	}
+    boolean addChapter(final Chapter chapter) {
+        this.chapters.add(chapter)
+    }
 
-	List<Chapter> getChapters() {
-		this.chapters;
-	}
+    List<Chapter> getChapters() {
+        this.chapters
+    }
 
-	LocalDate getCreatedDate() {
-		return this.createdDate;
-	}
+    LocalDate getCreatedDate() {
+        this.createdDate
+    }
 
-	String getId() {
-		return this.id;
-	}
+    String getId() {
+        this.id
+    }
 }

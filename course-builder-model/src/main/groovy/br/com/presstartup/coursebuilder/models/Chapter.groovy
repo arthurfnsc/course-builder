@@ -1,25 +1,30 @@
 package br.com.presstartup.coursebuilder.models
 
-import java.util.List
-
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.DBRef
 
+/**
+ * @author arthurfnsc
+ *
+ */
 class Chapter {
 
-	@Id
-	private String id
+    @Id
+    private String id
 
-	String title
+    String title
 
-	@DBRef
-	List<Content> contents = new ArrayList<>()
+    @DBRef
+    private final List<Content> contents = []
 
-	List<Content> getContents() {
-		Collections.unmodifiableCollection(this.contents);
-	}
+    List<Content> getContents() {
+        Collections.unmodifiableCollection(this.contents)
+    }
 
-	String getId() {
-		return this.id;
-	}
+    /**
+     * @return
+     */
+    String getId() {
+        this.id
+    }
 }
