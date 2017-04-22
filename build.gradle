@@ -1,23 +1,23 @@
 buildscript {
 
-	ext {
+    ext {
 
-		beanManesVersion = "0.14.0"
-		springBootVersion = "1.5.2.RELEASE"
-	}
+        beanManesVersion = "0.14.0"
+        springBootVersion = "1.5.2.RELEASE"
+    }
 
-	repositories {
+    repositories {
 
-		jcenter()
-		mavenCentral()
-		mavenLocal()
-	}
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+    }
 
-	dependencies {
+    dependencies {
 
-		classpath "com.github.ben-manes:gradle-versions-plugin:${beanManesVersion}"
-		classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-	}
+        classpath "com.github.ben-manes:gradle-versions-plugin:${beanManesVersion}"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+    }
 }
 
 apply plugin: "project-report"
@@ -25,80 +25,121 @@ apply plugin: "project-report"
 htmlDependencyReport { projects = project.allprojects }
 
 allprojects {
-	group "br.com.presstartup"
-	version "1.0.0"
+    group "br.com.presstartup"
+    version "1.0.0"
 }
 
 subprojects {
 
-	apply plugin: "codenarc"
-	apply plugin: "com.github.ben-manes.versions"
-	apply plugin: "eclipse"
-	apply plugin: "groovy"
-	apply plugin: "idea"
-	apply plugin: "java"
-	apply plugin: "org.springframework.boot"
+    apply plugin: "codenarc"
+    apply plugin: "com.github.ben-manes.versions"
+    apply plugin: "eclipse"
+    apply plugin: "groovy"
+    apply plugin: "idea"
+    apply plugin: "java"
+    apply plugin: "org.springframework.boot"
 
-	ext {
+    ext {
 
-		gmetricsVersion = "0.7"
-		spockVersion = "1.0-groovy-2.4"
-	}
+        gmetricsVersion = "0.7"
+        spockVersion = "1.0-groovy-2.4"
+    }
 
-	sourceCompatibility = 1.8
-	targetCompatibility = 1.8
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
 
-	def defaultEncoding = "UTF-8"
-	[
-		compileGroovy,
-		compileJava,
-		compileTestGroovy,
-		compileTestJava
-	]*.options*.encoding = defaultEncoding
+    def defaultEncoding = "UTF-8"
+    [
+        compileGroovy,
+        compileJava,
+        compileTestGroovy,
+        compileTestJava
+    ]*.options*.encoding = defaultEncoding
 
-	repositories {
+    repositories {
 
-		jcenter()
-		mavenCentral()
-		mavenLocal()
-	}
+        jcenter()
+        mavenCentral()
+        mavenLocal()
+    }
 
-	dependencies {
+    configurations { gmetrics }
 
-		compile "org.gmetrics:GMetrics:${gmetricsVersion}"
-		compile "org.codehaus.groovy:groovy"
-		compile "org.springframework.boot:spring-boot-starter"
+    dependencies {
 
-		testCompile "org.spockframework:spock-core:${spockVersion}"
-		testCompile "org.springframework.boot:spring-boot-starter-test"
-	}
+        compile "org.codehaus.groovy:groovy"
+        compile "org.springframework.boot:spring-boot-starter"
 
-	codenarc {
+        gmetrics "org.gmetrics:GMetrics:${gmetricsVersion}"
 
-		configFile project(':').file('config/codenarc/rules.groovy')
-		ignoreFailures false
-		maxPriority1Violations 0
-		maxPriority2Violations 0
-		maxPriority3Violations 0
-		toolVersion = "0.27.0"
-	}
+        testCompile "org.spockframework:spock-core:${spockVersion}"
+        testCompile "org.springframework.boot:spring-boot-starter-test"
+    }
 
-	dependencyUpdates.resolutionStrategy = {
-		componentSelection { rules ->
-			rules.all { ComponentSelection selection ->
-				boolean rejected = [
-					'alpha',
-					'beta',
-					'rc',
-					'cr',
-					'm'
-				].any { qualifier ->
-					selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
-				}
-				if (rejected) {
-					selection.reject('Release candidate')
-				}
-			}
-		}
-	}
+    check {
+        doLast {
+
+            gmetrics
+
+            ant.xslt(
+                    in: "${project.reporting.baseDir.path}/gmetrics/gmetrics.xml",
+                    style: project(':').file('config/gmetrics/gmetrics.xsl'),
+                    out:"$buildDir/reports/gmetrics/main.html"
+                    )
+        }
+    }
+
+    codenarc {
+
+        configFile project(':').file('config/codenarc/rules.groovy')
+        ignoreFailures false
+        maxPriority1Violations 0
+        maxPriority2Violations 0
+        maxPriority3Violations 0
+        toolVersion = "0.27.0"
+    }
+
+    dependencyUpdates.resolutionStrategy = {
+        componentSelection { rules ->
+            rules.all { ComponentSelection selection ->
+                boolean rejected = [
+                    'alpha',
+                    'beta',
+                    'rc',
+                    'cr',
+                    'm'
+                ].any { qualifier ->
+                    selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+                }
+                if (rejected) {
+                    selection.reject('Release candidate')
+                }
+            }
+        }
+    }
+
+    task gmetrics {
+
+        ant.taskdef(name: 'gmetrics', classname: 'org.gmetrics.ant.GMetricsTask', classpath: configurations.gmetrics.asPath)
+
+        ant.mkdir(dir: "${project.reporting.baseDir.path}/gmetrics")
+
+        ant.gmetrics(metricSetFile: 'file:config/gmetrics/metrics.groovy') {
+            report(type: 'org.gmetrics.report.BasicHtmlReportWriter') {
+                option(name: 'outputFile', value: "${project.reporting.baseDir.path}/gmetrics/gmetrics.html")
+            }
+            report(type: 'org.gmetrics.report.XmlReportWriter') {
+                option(name: 'outputFile', value: "${project.reporting.baseDir.path}/gmetrics/gmetrics.xml")
+            }
+            fileset(dir: 'src/main/groovy') {
+                include name: "**/**"
+                //exclusions to filter out any classes with inner classes - sonar doesn't support
+                exclude(name: '**/*Config*')
+            }
+            //set.allGroovy.addToAntBuilder(ant, 'fileset', FileCollection.AntType.FileSet)
+        }
+        //reportFile = new File(codeNarcReportsDir, "${set.name}.xml")
+        //source = set.allGroovy
+        //ignoreFailures = true
+    }
 }
